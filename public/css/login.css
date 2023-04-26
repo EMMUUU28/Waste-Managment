@@ -1,0 +1,53 @@
+/* Css for login page waste managment */
+.form{
+  width: 350px;
+  margin-left:auto;
+  margin-right: auto;
+  margin-top: 150px;
+}
+.copyright{
+  text-align: center;
+}
+.h3{
+  padding-left: 23%;
+}
+/* navbar */
+.navbar {
+ /* padding-bottom: 4.5rem; */
+ /* background-color: #9CFF2E; */
+ background-color: #3EC70B;
+}
+
+.navbar ul{
+  margin-right: 5%;
+}
+
+.nav-link{
+ /* color: #1E5128; */
+ color: #fff;;
+ font-size: 1.2rem;
+ /* font-weight: lighter; */
+
+}
+.navbar-brand{
+ /* font-family: "Ubuntu" */
+ /* color:  #1E5128; */
+ color: #fff;
+ font-size: 2.5rem;
+ /* font-weight: bold; */
+   padding: 0 10% 0 10%;
+}
+
+/* .nav-item{ */
+   /* padding: 0 18%; */
+/* } */
+ /* navbar end */
+
+.footerform{
+ padding-left: 30%;
+
+ box-sizing: content-box;
+}
+.footer{
+  padding-bottom: 1%;
+}
