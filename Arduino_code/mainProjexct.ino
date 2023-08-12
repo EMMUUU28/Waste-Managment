@@ -1,8 +1,9 @@
 #include <SoftwareSerial.h>
+#include<Servo.h>
 #define RX 2
 #define TX 3
 #define dht_apin 11 // Analog Pin sensor is connected to
-
+Servo myservo; 
 //Start :
 //define the pins that we will use for the first ultrasonic sensor
 //----------------------------------------------------------------------------------------------------------------------
@@ -10,7 +11,6 @@
 #define echoPin1 9                                   // we'll use this pin to read the signal from the first sensor
 //#define LED_first_ping 22                            // I/O digital or analogique ( we will use pin 22 to command an LED (on/off))
 //----------------------------------------------------------------------------------------------------------------------
-
 //define the pins that we will use for the second ultrasonic sensor
 //----------------------------------------------------------------------------------------------------------------------
 #define trigPin2 10
@@ -21,12 +21,12 @@
 //used variables
 //----------------------------------------------------------------------------------------------------------------------
 long duration, distance, UltraSensor1, UltraSensor2; //we'll use these variable to store and generate data
-
+int pos = 0;
 char data;
 String SerialData="";
 
-String AP = "SUN";       // AP NAME
-String PASS = "genesis2020"; // AP PASSWORD
+String AP = "Galaxy M30sCE58";       // AP NAME
+String PASS = "surve2004"; // AP PASSWORD
 String API = "JYMFGN4WL88T1BBG";   // Write API KEY
 String HOST = "api.thingspeak.com";
 String PORT = "80";
@@ -34,12 +34,16 @@ int countTrueCommand;
 int countTimeCommand; 
 boolean found = false; 
 int valSensor = 1;
-  
+  int count=0;
 SoftwareSerial esp8266(RX,TX); 
   
+  
+
 void setup() {
+
   Serial.begin(9600);
   esp8266.begin(115200);
+  myservo.attach(4);  // attaches the servo on pin 9 to the servo object
   // setup pins first sensor
 pinMode(trigPin1, OUTPUT);                        // from where we will transmit the ultrasonic wave
 pinMode(echoPin1, INPUT);                         //from where we will read the reflected wave 
@@ -47,23 +51,69 @@ pinMode(echoPin1, INPUT);                         //from where we will read the 
 //setup pins second sensor
 pinMode(trigPin2, OUTPUT);
 pinMode(echoPin2, INPUT);
-
+delay(15);
   sendCommand("AT",5,"OK");
+delay(15);
   sendCommand("AT+CWMODE=1",5,"OK");
+  delay(15);
   sendCommand("AT+CWJAP=\""+ AP +"\",\""+ PASS +"\"",20,"OK");
+  delay(15);
 }
 
 void loop() {
-  
+
+  // opening/closing segragation 
+   int sensorValue = analogRead(A1);
+  int mappedValue=map(sensorValue,0,1023,100,0);
+  Serial.print("Moisture Present: ");
+    Serial.print(mappedValue);
+Serial.println("%");  
+delay(1000);  
+  // print out the value you read:
+  if (mappedValue>10)
+  {
+    for (pos = 90; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
+     myservo.write(pos);              // tell servo to go to position in variable 'pos'
+     delay(15);                       // waits 15ms for the servo to reach the position
+   }
+  delay(1000);
+  for (pos = 0; pos <= 90; pos += 1) { // goes from 0 degrees to 180 degrees
+    // in steps of 1 degree
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(15);                       // waits 15ms for the servo to reach the position
+  }
+   count=count+1;
+  }
+   else if(mappedValue>4 && mappedValue<10)
+   {
+     for (pos = 90; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
+    // in steps of 1 degree
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(15);                       // waits 15ms for the servo to reach the position
+     }
+         delay(1000);
+   for (pos = 180; pos >= 90; pos -= 1) { // goes from 180 degrees to 0 degrees
+     myservo.write(pos);              // tell servo to go to position in variable 'pos'
+     delay(15);                       // waits 15ms for the servo to reach the position
+   }
+   count=count+1;
+  }      // delay in readings 
+  Serial.print("Count= ");
+Serial.println(count);
+  //wifi module command start
+  if(count==7)
+  {
  String getData = "GET /update?api_key="+ API +"&field1="+getDistance1()+"&field2="+getDistance2();
  sendCommand("AT+CIPMUX=1",5,"OK");
  sendCommand("AT+CIPSTART=0,\"TCP\",\""+ HOST +"\","+ PORT,15,"OK");
-  delay(2000);
+  delay(3000);
  sendCommand("AT+CIPSEND=0,"+String(getData.length()+10),4,">");
  esp8266.println(getData);
  delay(1000);
  countTrueCommand++;
  sendCommand("AT+CIPCLOSE=0",5,"OK");
+ count=0;
+ }                                            // wifi module end
 }
 
 
