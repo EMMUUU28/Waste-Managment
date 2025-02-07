@@ -19,6 +19,7 @@ app.post("/services.html",function(req,res)
         console.log(response.statusCode)
         response.on("data",function(data){
             const info=JSON.parse(data)
+            
             console.log(info.channel.field1+" bin is: "+ info.feeds[0].field1+" filled.")
             res.write("<h1>"+info.channel.field2+" bin is: "+Math.round( ((15-info.feeds[0].field2)/15)*100)+" % filled.</h1>")
             res.write("<h1>"+info.channel.field1+" bin is: "+Math.round( ((15-info.feeds[0].field1)/15)*100)+" % filled.</h1>")
@@ -28,6 +29,6 @@ app.post("/services.html",function(req,res)
     })
 })
  
-app.listen(3000,function(){
+app.listen(8000,function(){
     console.log("Server is running..")
 })
